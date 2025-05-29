@@ -2,7 +2,7 @@
 import chalk from "chalk";
 import express from "express";
 import connectDB from "./config/dbConnect.js";
-import Livro from "./models/Livro.js";
+import routes from "./routes/index.js";
 
 const conexao = await connectDB();
 
@@ -13,23 +13,7 @@ conexao.on("error", (erro)=>{
 console.log(chalk.green("[INFO] Successfully connected to the database"));
 
 const app = express();
-app.use(express.json());
-
-app.get("/",(req, res)=>{
-    res.status(200).send("Curso de Node.js");
-});
-
-// Listar todos os livros
-// app.get("/livros", async (req, res) => {
-//    try {
-//        const livros = await Livro.find({});
-//        res.status(200).json(livros);
-//        console.log(chalk.green(`[GET /livros] ${livros.length} livro(s) encontrado(s).`));
-//    } catch (error) {
-//        res.status(500).json({message: error.message });
-//        console.log(chalk.red(`[GET /livros] Erro ao buscar livros.`));
-//    }
-//});
+routes(app);
 
 // Buscar livro por autor
 app.get("/livros/autor/:nome", async (req, res) => {
@@ -42,17 +26,6 @@ app.get("/livros/autor/:nome", async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Erro ao buscar livros pelo autor."});
     }
-});
-
-// Criar novo livro
-app.post("/livros", async (req, res) => {
-    try {
-        const novoLivro = new Livro( {titulo: req.body.titulo });
-        await novoLivro.save();
-        res.status(201).json(novoLivro);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }    
 });
 
 // Atualizar livro
