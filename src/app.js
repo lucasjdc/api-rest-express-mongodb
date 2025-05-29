@@ -29,14 +29,16 @@ app.get("/livros", async (req, res) => {
     }
 });
 
-// Buscar livro por id
-app.get("/livros/:id", async (req, res) => {
+// Buscar livro por autor
+app.get("/livros/autor/:nome", async (req, res) => {
     try {
-        const livro = await Livro.findById(req.params.id);
-        if (!livro) return res.status(404).json({ message: "Livro não encontrado."});
-        res.status(200).json(livro);
+        const livros = await Livro.find({ autor: req.params.nome });
+        if (!livros || livros.length === 0) {
+            return res.status(404).json({ message: "Nenhum livro encontrado para esse autor." });            
+        }
+        res.status(200).json(livros);
     } catch (error) {
-        res.status(400).json({ message: "ID inválido"});
+        res.status(500).json({ message: "Erro ao buscar livros pelo autor."});
     }
 });
 
