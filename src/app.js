@@ -20,14 +20,16 @@ app.get("/",(req, res)=>{
 });
 
 // Listar todos os livros
-app.get("/livros", async (req, res) => {
-    try {
-        const livros = await Livro.find();
-        res.status(200).json(livros);
-    } catch (error) {
-        res.status(500).json({message: error.message });
-    }
-});
+// app.get("/livros", async (req, res) => {
+//    try {
+//        const livros = await Livro.find({});
+//        res.status(200).json(livros);
+//        console.log(chalk.green(`[GET /livros] ${livros.length} livro(s) encontrado(s).`));
+//    } catch (error) {
+//        res.status(500).json({message: error.message });
+//        console.log(chalk.red(`[GET /livros] Erro ao buscar livros.`));
+//    }
+//});
 
 // Buscar livro por autor
 app.get("/livros/autor/:nome", async (req, res) => {
