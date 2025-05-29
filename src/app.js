@@ -1,54 +1,81 @@
 'use strict';
+import chalk from "chalk";
 import express from "express";
+import connectDB from "./config/dbConnect.js";
+import Livro from "./models/Livro.js";
+
+const conexao = await connectDB();
+
+conexao.on("error", (erro)=>{
+    console.error("Erro de conexão", erro);
+});
+
+console.log(chalk.green("[INFO] Successfully connected to the database"));
 
 const app = express();
 app.use(express.json());
-
-const livros = [
-    {
-        id: 1,
-        titulo: "Aplicações web real-time com Node.js"
-    },
-    {
-        id: 2,
-        titulo: "Meteor: Criando aplicações web real-time com JavaScript"
-    }
-]
-
-function buscaLivro(id) {
-    return livros.findIndex(livro => {
-        return livro.id === Number(id);
-    });
-}
 
 app.get("/",(req, res)=>{
     res.status(200).send("Curso de Node.js");
 });
 
-app.get("/livros", (req, res) => {
-    res.status(200).json(livros);
+// Listar todos os livros
+app.get("/livros", async (req, res) => {
+    try {
+        const livros = await Livro.find();
+        res.status(200).json(livros);
+    } catch (error) {
+        res.status(500).json({message: error.message });
+    }
 });
 
-app.get("/livros/:id", (req, res) => {
-    const index = buscaLivro(req.params.id);
-    res.status(200).json(livros[index]);
+// Buscar livro por id
+app.get("/livros/:id", async (req, res) => {
+    try {
+        const livro = await Livro.findById(req.params.id);
+        if (!livro) return res.status(404).json({ message: "Livro não encontrado."});
+        res.status(200).json(livro);
+    } catch (error) {
+        res.status(400).json({ message: "ID inválido"});
+    }
 });
 
-app.post("/livros", (req, res) => {
-    livros.push(req.body);
-    res.status(201).send("Livro cadadstrado com sucesso");
+// Criar novo livro
+app.post("/livros", async (req, res) => {
+    try {
+        const novoLivro = new Livro( {titulo: req.body.titulo });
+        await novoLivro.save();
+        res.status(201).json(novoLivro);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }    
 });
 
-app.put("/livros/:id", (req, res) => {
-    const index = buscaLivro(req.params.id);
-    livros[index].titulo = req.body.titulo;
-    res.status(200).json(livros[index]);
+// Atualizar livro
+app.put("/livros/:id", async (req, res) => {
+    try {
+        const livroAtualizado = await Livro.findByIdAndUpdate(
+            req.params.id,
+            { titulo: req.body.titulo },
+            { new: true, runValidators: true }
+        );
+        if (!livroAtualizado) return res.status(404).json({ message: "Livro não encontrado."});
+        res.status(200).json(livroAtualizado);
+    } catch (error) {
+        res.status(400).json( { message: "ID inválido" });
+    }
 });
 
-app.delete("/livros/:id", (req, res) => {
-    const index = buscaLivro(req.params.id);
-    livros.splice(index, 1);
-    res.status(200).send("Livro removido com sucesso.");
+// Deletar libro
+app.delete("/livros/:id", async (req, res) => {
+    try {
+        const livroRemovido = await Livro.findByIdAndDelete(req.params.id);
+        if (!livroRemovido) return res.status(404).json( {message: "Livro não encontrado."});
+        res.status(200).json( { message: "Livro removido com sucesso" });
+    } catch (error) {
+        res.status(400).json( { message: "ID inválido" });
+    }
 });
 
 export default app;
+
