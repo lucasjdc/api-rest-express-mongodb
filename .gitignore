@@ -41,3 +41,6 @@ nodemon-debug.json
 # OS-specific files
 .DS_Store
 Thumbs.db
+
+# ESLint cache
+.eslintcache
