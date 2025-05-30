@@ -1,3 +1,4 @@
+import NaoEncontrado from "../erros/NaoEncontrado.js";
 import Autor from "../models/Autor.js";
 import chalk from "chalk";
 
@@ -13,15 +14,16 @@ class AutorController {
         }
     }    
 
-    static async listarAutorPorId(req, res, next) {
-        const id = req.params.id;
+    static async listarAutorPorId(req, res, next) {        
         try {
-            const autor = await Autor.findById(id);
-            if (!autor) {
-                return res.status(404).json({ message: "Autor não encontrado." });
-            }
-            console.log(chalk.green(`[GET /autores/${id}] Autor encontrado.`));
-            res.status(200).json(autor);
+            const id = req.params.id;
+            const autorResultado = await Autor.findById(id);
+            if (autorResultado !== null) {
+                console.log(chalk.green(`[GET /autores/${id}] Autor encontrado.`));
+            res.status(200).json(autorResultado);
+            } else {
+                next(new NaoEncontrado("Id do autor não localizado."));
+            }           
         } catch (error) {
             next(error);           
         }
@@ -46,7 +48,7 @@ class AutorController {
                 { new: true, runValidators: true }
             );
             if (!autorAtualizado) {
-                return res.status(404).json({ message: "Autor não encontrado." });
+                next(new NaoEncontrado("Autor não encontrado."));                
             }
             console.log(chalk.green(`[PUT /autores/${req.params.id}] Autor atualizado.`));
             res.status(200).json(autorAtualizado);
@@ -59,7 +61,7 @@ class AutorController {
         try {
             const autorRemovido = await Autor.findByIdAndDelete(req.params.id);
             if (!autorRemovido) {
-                return res.status(404).json({ message: "Autor não encontrado." });
+                next(new NaoEncontrado("Autor não encontrado."));
             }
             console.log(chalk.green(`[DELETE /autores/${req.params.id}] Autor removido.`));
             res.status(200).json({ message: "Autor removido com sucesso" });
