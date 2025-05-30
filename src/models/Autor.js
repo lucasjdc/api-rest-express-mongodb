@@ -9,4 +9,5 @@ const autorSchema = new mongoose.Schema({
 
 const Autor = mongoose.model("Autor", autorSchema);
 
+export { autorSchema };
 export default Autor;

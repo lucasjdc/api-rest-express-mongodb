@@ -1,6 +1,7 @@
 'use strict';
 import Livro from "../models/Livro.js";
 import chalk from "chalk";
+import Autor from "../models/Autor.js";
 
 class LivroController {
 
@@ -46,9 +47,11 @@ class LivroController {
     }
 
     static async cadastrarLivro(req, res) {
+        const novoLivro = req.body;
         try {
-            const novoLivro = new Livro({ titulo: req.body.titulo });
-            await novoLivro.save();
+            const autorEncontrado = await Autor.findById(novoLivro.autor);         
+            const livroCompleto = { ...novoLivro, autor: { ...autorEncontrado._doc } };
+            const livroCriado = await Livro.create(livroCompleto);
             res.status(201).json(novoLivro);
             console.log(chalk.green(`[POST /livros] Novo livro cadastrado com sucesso.`));
         } catch (error) {
