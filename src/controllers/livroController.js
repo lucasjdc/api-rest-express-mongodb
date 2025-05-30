@@ -1,7 +1,6 @@
 'use strict';
 import Livro from "../models/Livro.js";
 import chalk from "chalk";
-import Autor from "../models/Autor.js";
 
 class LivroController {
 
@@ -11,7 +10,7 @@ class LivroController {
             res.status(200).json(livros);
             console.log(chalk.green(`[GET /livros] ${livros.length} livro(s) encontrado(s).`));
         } catch (error) {
-           next(error);
+            next(error);
         }
     }
 
@@ -25,7 +24,7 @@ class LivroController {
             res.status(200).json(livro);
             console.log(chalk.green(`[GET /livros/${id}] Livro encontrado.`));
         } catch (error) {
-            next(error); 
+            next(error);
         }
     }
 
@@ -47,20 +46,12 @@ class LivroController {
     }
 
     static async cadastrarLivro(req, res, next) {
-        const novoLivro = req.body;
         try {
-            const autorEncontrado = await Autor.findById(novoLivro.autor);
-            if (!autorEncontrado) {
-                return res.status(404).json({ message: "Autor não encontrado." });
-            }
-
-            // Se o schema do Livro espera só o ID do autor, podemos criar direto assim:
-            const livroCriado = await Livro.create(novoLivro);
-
+            const livroCriado = await Livro.create(req.body);
             res.status(201).json(livroCriado);
             console.log(chalk.green(`[POST /livros] Novo livro cadastrado com sucesso: ${livroCriado._id}`));
         } catch (error) {
-            next(error);
+            next(error); // erros de required e cast vão direto pro manipulador
         }
     }
 
@@ -73,7 +64,7 @@ class LivroController {
             res.status(200).json({ message: "Livro removido com sucesso" });
             console.log(chalk.green(`[DELETE /livros/${req.params.id}] Livro removido.`));
         } catch (error) {
-            next(error);           
+            next(error);
         }
     }
 

@@ -1,19 +1,19 @@
-'use strict';
 import mongoose from "mongoose";
-import { autorSchema } from "./Autor.js";
-
-const frase = "do livro é obrigatório";
 
 const livroSchema = new mongoose.Schema({
     
     titulo: { 
         type: String,
-        required: [true, "O título " + frase] 
+        required: [true, "O título do livro é obrigatório"] 
     },
-    autor: autorSchema,
+    autor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "autores",
+        required: [true, "O(a) autor(a) é obrigatorio"]
+    },
     editora: {
         type: String,
-        required: [true, "A editora " + frase]
+        required: [true, "A editora é obrigatório"]
     }
 }, { versionKey: false });
 

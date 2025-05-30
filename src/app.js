@@ -1,4 +1,3 @@
-'use strict';
 import chalk from "chalk";
 import express from "express";
 import connectDB from "./config/dbConnect.js";
@@ -14,9 +13,18 @@ conexao.on("error", (erro)=>{
 console.log(chalk.green("[INFO] Successfully connected to the database"));
 
 const app = express();
+
+app.use(express.json());
+
+app.use((err, req, res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+        return res.status(400).json({ message: "JSON malformado." });
+    }
+    next(err);
+});
+
 routes(app);
 
-// eslint-disable-next-line no-unused-vars
 app.use(manipuladorDeErros);
 
 export default app;
