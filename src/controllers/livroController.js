@@ -15,17 +15,18 @@ class LivroController {
         }
     }
 
-    static async listarLivrosPorAutor(req, res) {
-        const autor = req.params.nome;
+    static async listarLivroPorId(req, res) {
+        const id = req.params.id;
         try {
-            const livros = await Livro.find({ autor });
-            if (!livros || livros.length === 0) {
-                return res.status(404).json({ message: "Nenhum livro encontrado para esse autor." });
+            const livro = await Livro.findById(id);
+            if (!livro) {
+                return res.status(404).json({ message: "Livro não encontrado." });
             }
-            res.status(200).json(livros);
-            console.log(chalk.green(`Livro(s) do(a) autor(a) ${autor} encontrado(s).`));
+            res.status(200).json(livro);
+            console.log(chalk.green(`[GET /livros/${id}] Livro encontrado.`));
         } catch (error) {
-            res.status(500).json({ message: "Erro ao buscar livros pelo autor." });
+            res.status(400).json({ message: "ID inválido." });
+            console.log(chalk.red(`[GET /livros/${id}] Erro ao buscar livro.`));
         }
     }
 
@@ -53,6 +54,16 @@ class LivroController {
         } catch (error) {
             res.status(400).json({ message: error.message });
             console.log(chalk.red(`[POST /livros] Falha ao cadastrar o livro.`));
+        }
+    }
+
+    static async excluirLivro(req, res) {
+        try {
+            const livroRemovido = await Livro.findByIdAndDelete(req.params.id);
+            if (!livroRemovido) return res.status(404).json({ message: "Livro não encontrado." });
+            res.status(200).json({ message: "Livro removido com sucesso" });
+        } catch (error) {
+            res.status(400).json({ message: "ID inválido" });
         }
     }
 };
