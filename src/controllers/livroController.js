@@ -69,6 +69,18 @@ class LivroController {
             res.status(400).json({ message: "ID inválido" });
         }
     }
+
+    static async listarLivroPorEditora (req, res) {
+        const editora = req.query.editora;
+        try {
+            const livrosPorEditora = await Livro.find({ editora: editora});
+            res.status(200).json(livrosPorEditora);
+
+        } catch (erro) {
+            res.status(500).json({message: `${erro.message} - falha na busca`});
+        }
+
+    }
 };
 
 export default LivroController;
